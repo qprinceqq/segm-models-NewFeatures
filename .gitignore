@@ -6,3 +6,4 @@ onnx/*
 .segm_models/*
 *.onnx
 filenames.txt
+rg3val_path.txt

@@ -21,12 +21,13 @@ def main():
     srun --mem=32000 -t 0:30:00 python convert_classes_in_masks.py
     """
     # LandCover.ai
-    source_path = Path(r'D:\Vector_data\RG3\water_dataset\gt_white_bg')
-    res_path = Path(r'D:\Vector_data\RG3\water_dataset\gt_1_2')  # лучше сохранять в новую папку чтобы убедиться, что всё ок
+    source_path = Path(r'E:\Datasets\landcover.ai ver1\landcover.ai_256\val\gt')
+    res_path = Path(r'E:\Datasets\landcover.ai ver1\landcover.ai_256\val\gt_new')  # лучше сохранять в новую папку чтобы убедиться, что всё ок
     files_ext = '*.tif'
     # old_new_colors = [[3, 1], [4, 3], [1, 4]]
-    old_new_colors = [[255, 1], [0, 2]]
+    # old_new_colors = [[255, 1], [0, 2]]
     #old_new_colors = [[255, 64], [64, 255], [192, 128], [128, 192]]
+    old_new_colors = [[3, 64], [1,255],[4, 192], [2, 128]] # LandCover ver 1
 
     # DeeepGlobe
     # source_path = Path(r'/misc/home6/m_imm_freedata/Segmentation/DeepGlobe_Land/DeepGlobe512/val/gt')

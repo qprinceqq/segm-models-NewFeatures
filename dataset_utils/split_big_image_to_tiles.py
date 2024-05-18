@@ -8,19 +8,19 @@ def main():
     """
     Функция для нарезания многоканального снимка на фрагменты tile_size с шагом shift
     """
-    tile_size = 512
+    tile_size = 256
     shift = tile_size  # Можно задать значение меньше тогда тайлы будут нарезаться со сдвигом 256, а не 512
-    path = Path(r'D:\Vector_data\RG3\T1_water')  # Путь к папке где лежат каналы снимка
-    output_dir = Path(r'D:\Vector_data\RG3\water_dataset')  # Путь куда сохранить результат
-    img_name = 'rg3'
+    path = Path(r'D:\Vector_data\Ekaterinburg\Comp')  # Путь к папке где лежат каналы снимка
+    output_dir = Path(r'D:\Vector_data\Ekaterinburg\Comp\public_test')  # Путь куда сохранить результат
+    img_name = 'private_test'
 
     # images = ['rgb-lab.png', 'NI.png', 'water.png']
     # dirs = ['images', 'nir', 'gt']
     # # читаем изображение как оно есть, флаг '-1' без конвертации в 8 бит
     # flags = [None, cv2.IMREAD_GRAYSCALE, cv2.IMREAD_GRAYSCALE]
 
-    images = ['ndvi.png']
-    dirs = ['ndvi']
+    images = ['public_test_gt.png']
+    dirs = ['gt']
     # читаем изображение как оно есть, флаг '-1' без конвертации в 8 бит
     flags = [cv2.IMREAD_GRAYSCALE]
 

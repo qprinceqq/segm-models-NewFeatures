@@ -48,6 +48,9 @@ class TilesDataset(Dataset):
         max_mask_val = int(max_mask_val)
 
         self.data_dir = data_dir
+        if not os.path.isdir(self.data_dir):
+            raise RuntimeError(f"Error: Provided path {data_dir} IS NOT DIR")
+
         self.name = os.path.basename(os.path.dirname(data_dir))
         # TODO читать in_channels из файла и сделать cv::imreadmulti из images ,если нужно читать многоканальные
         # изображения, сейчас в images должны лежать трехканальные изображения
@@ -64,7 +67,7 @@ class TilesDataset(Dataset):
             # self.class_list = [int(x) for x in class_list.split()]
         print(f"Class list {self.class_list}")
         self.num_classes = len(self.class_list)
-        # если многоклассовая классификация то добавляем класс background (на один класс больше)
+        # если многоклассовая классификация, то добавляем класс background (на один класс больше)
         self.num_classes = 1 if self.num_classes == 1 else self.num_classes + 1
         print(f"Num classes to train with background: {self.num_classes}")
 
@@ -105,15 +108,14 @@ class TilesDataset(Dataset):
         image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # читаем изображение как оно есть, а не в 8 бит
         if image is None:
             raise IOError(f"Cannot read {path}")
-
         if self.add_dirs and len(self.add_dirs) > 0:
+            image = image.astype(np.float32)
             filename = os.path.basename(path)
             for i_dir in range(len(self.add_dirs)):
                 path = os.path.join(self.data_dir, self.add_dirs[i_dir], filename)
                 channel = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # читаем изображение как оно есть
                 if channel is None:
                     raise IOError(f"Cannot read {path}")
-                image = image.astype(np.float32)
                 if len(channel.shape) > 2:
                     channel = channel[:, :, 0]  # оставляем только один канал
                 channel = channel.astype(np.float32)
@@ -204,13 +206,23 @@ class TilesDataset(Dataset):
             os.mkdir(save_dir)
 
         orig_transform = self.transform
-        self.transform = self.test_transform
-
-        for i in range(n_samples):
-            idx = np.random.randint(0, len(self))
-            image, mask = self[idx]
-            cv2.imwrite(os.path.join(save_dir, f'{idx}_image.tif'), image.numpy())
-            cv2.imwrite(os.path.join(save_dir, f'{idx}_mask.tif'), 255*mask.numpy())
+        k = 0
+        for trans in self.test_transform.transforms:
+            k += 1
+            class_name = str(k) + '_' +trans.__class__.__name__
+            print(f'{k}. {class_name}')
+            outpath = os.path.join(save_dir,class_name)
+            os.makedirs(outpath, exist_ok=True)
+            self.transform = A.Compose(trans)
+            for i in range(n_samples):
+                # idx = np.random.randint(0, len(self))
+                idx = i
+                image, mask = self[idx]
+                image = np.moveaxis(image.numpy(), 0, -1)
+                mask = 255 * np.moveaxis(mask.numpy(), 0, -1)
+                mask = np.uint8(mask)
+                cv2.imwrite(os.path.join(outpath, f'{idx}_image.tif'), image)
+                cv2.imwrite(os.path.join(outpath, f'{idx}_mask.tif'), mask)
 
         self.transform = orig_transform
 

@@ -29,10 +29,17 @@ def main():
     # по умолчанию '255' - означает что на маске два значения - 0 и 255
     # размер батча должен быть четным числом, а число примеров в наборе также четным
     parser.add_argument("-b", "--batch", type=int, default=6, help="batch size default=6, must be an even number")
-    parser.add_argument("-lr", type=float, default=0.001, help="learning rate")
     parser.add_argument("-e", "--epochs", type=int, default=50, help="default=50")
     parser.add_argument("-a", "--augmentation", type=str, default="hard", help="default=hard, medium light safe")
     parser.add_argument("-w", "--workers", type=int, default=1, help="default=6")
+
+    # ОПТИМИЗАТОР  Расписание Loss
+    parser.add_argument("--loss", type=str, default="DiceLoss", help="default=DiceLoss, JaccardLoss")
+    parser.add_argument("--optim", type=str, default="Adam", help="default=Adam, NAdam RMSprop Adadelta")
+    parser.add_argument("-lr", type=float, default=0.001, help="learning rate")
+    parser.add_argument("-sc", "--scheduler", type=str, default="CosineAnnealingLR", help="default"
+                                                                                " CosineAnnealingLR ReduceLROnPlateau")
+
     # Dirs
     parser.add_argument("-d", "--dataset", type=str, required=True, help="path where dataset is placed")
     # Если хотим взять данные из нескольких наборов, нужно собрать в .txt файл список файлов из всех папок images,
@@ -130,7 +137,8 @@ def main():
                              )
             )
 
-    # valid_set.test_augment(r'D:\Vector_data\Water\test_dataset\valid_test_aug', 10)
+    # valid_set.test_augment(r'D:\Segmentation\Data\Water\test_dataset\one_aug\RandomRotate90', 10)
+    # train_set.test_augment(r'C:\RG3\one_aug', 10)
 
     print('Параметры переданные в скрипт')
     print("Passed arguments: ", str(args).replace(',', ',\n'))
@@ -156,6 +164,7 @@ def main():
     for i in range(len(add_valid_set_list)):
         print(f"  Additional val set {i}     :", "dataset", len(valid_set))
     # print("Optimizer        :", optimizer_name)
+    print("Optimizer        :", args.optim)
 
     trainer = SegmentationTrainer(
         train_set,
@@ -173,9 +182,12 @@ def main():
         train_workers_count=int(args.workers),
         valid_workers_count=int(args.workers),
         encoder_name=args.encoder,
+        optimizer_name=args.optim,
+        scheduler_name=args.scheduler,
+        loss_name=args.loss,
         device=args.device
     )
-
+    # ОПТИМИЗАТОР optimizer_name
     trainer.start_training()
 
 

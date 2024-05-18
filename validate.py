@@ -63,6 +63,7 @@ def write_plots_and_visualize(path_to_res, visualize=False, **images):
             plt.imshow(image)
 
     plt.savefig(path_to_res, bbox_inches='tight')
+    print(f'Save {path_to_res}')
 
     if visualize:
         plt.show()
@@ -75,7 +76,10 @@ def convert_torch_to_8_bit(tensor):
     max_val = np.max(res)
     min_val = np.min(res)
 
-    res = 255.0 * (res - min_val) / (max_val - min_val)
+    if max_val != min_val:
+        res = 255.0 * (res - min_val) / (max_val - min_val)
+    else:
+        res = 255.0 * res
     res = np.uint8(res)
     return res
 
@@ -200,8 +204,6 @@ def main():
     parser.add_argument('--plots', action='store_true', help="write img|output|mask in one plot")
     parser.add_argument('--binary', action='store_true', help="write binary output to disk")
     parser.add_argument('--raw', action='store_true', help="write raw output to disk")
-    parser.add_argument('--com', '--calc-only-metrics', action='store_true',
-                        help="calc only metrics without saving imgs with predictions")
     # parser.add_argument('--uim', '--use-imagenet-means', action='store_true',
     #                     help="use imagenet mean and std for normalizing images")
     # parser.add_argument('--ucm', '--use-checkpoint-means', action='store_true',
@@ -218,7 +220,6 @@ def main():
     print("Passed arguments: ", str(args).replace(',',',\n'))
 
     b_visualize = True if args.vis else False
-    b_calc_only_metrics = True if args.vis else False
 
     # Определяем путь до чекпоинта
     if args.check_path is None:
@@ -376,28 +377,28 @@ def main():
                     mean_metrics[i].append(val)
                     i += 1
 
-            if not b_calc_only_metrics:  # Сохраним бинарные картинки
-                if args.binary:
-                    print(f'Save {os.path.join(_output_path, filename)}')
-                    cv2.imwrite(os.path.join(_output_path, filename), cv2.cvtColor(res['binary'], cv2.COLOR_RGB2BGR))
+            if args.binary:  # Сохраним бинарные картинки
+                print(f'Save {os.path.join(_output_path, filename)}')
+                cv2.imwrite(os.path.join(_output_path, filename), cv2.cvtColor(res['binary'], cv2.COLOR_RGB2BGR))
 
-                if args.raw: # Сохраним выход сети без пороговой обработки
-                    print(f'Save {os.path.join(_output_raw_path, filename)}')
-                    cv2.imwrite(os.path.join(_output_raw_path, filename), res['raw'])
+            if args.raw: # Сохраним выход сети без пороговой обработки
+                print(f'Save {os.path.join(_output_raw_path, filename)}')
+                cv2.imwrite(os.path.join(_output_raw_path, filename), res['raw'])
 
-                if args.plots:  # сохраняем снимок/выход сети/ разметку в одну картинку в папку plots
-                    if _b_calc_metrics:
-                        name, ext = filename.split('.')
-                        plot_name = name + f"_iou_{metrics['iou']:.2f}_acc_{metrics['acc']:.2f}." + ext
-                    else:
-                        plot_name = filename
-                    write_plots_and_visualize(  # (path_to_res, visualize=False, **images)
-                        os.path.join(_output_plots_path, plot_name),
-                        visualize=b_visualize,
-                        image=image,
-                        predicted=res['plot'],
-                        mask=mask
-                    )
+            if args.plots:  # сохраняем снимок/выход сети/ разметку в одну картинку в папку plots
+                if _b_calc_metrics:
+                    name, ext = filename.split('.')
+                    plot_name = name + f"_iou_{metrics['iou']:.2f}_acc_{metrics['acc']:.2f}." + ext
+                else:
+                    plot_name = filename
+                write_plots_and_visualize(  # (path_to_res, visualize=False, **images)
+                    os.path.join(_output_plots_path, plot_name),
+                    visualize=b_visualize,
+                    image=image,
+                    predicted=res['plot'],
+                    mask=mask
+                )
+
         if _b_calc_metrics:
             for i in range(len(mean_metrics)):
                 mean_metrics[i] = statistics.mean(mean_metrics[i])

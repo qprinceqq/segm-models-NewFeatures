@@ -60,9 +60,9 @@ def medium_augmentations(for_3ch_img=True, mask_dropout=True) -> List[A.DualTran
         A.HorizontalFlip(),
         A.ShiftScaleRotate(scale_limit=0.1, rotate_limit=15, border_mode=cv2.BORDER_CONSTANT),
         # Add occasion blur/sharpening
-        A.OneOf([A.GaussianBlur(), A.IAASharpen(), A.NoOp()]),
+        A.OneOf([A.GaussianBlur(), A.NoOp()]),  # A.IAASharpen()
         # Spatial-preserving augmentations:
-        A.OneOf([A.CoarseDropout(), A.NoOp()]), #  A.MaskDropout(max_objects=5) if mask_dropout else A.NoOp()
+        A.OneOf([A.CoarseDropout(), A.NoOp()]),  #  A.MaskDropout(max_objects=5) if mask_dropout else A.NoOp()
         A.GaussNoise(),
         # Color augmentations
         A.OneOf(
@@ -136,6 +136,19 @@ def hard_augmentations(for_3ch_img=True, mask_dropout=True) -> List[A.DualTransf
     ]
 
 
+def one_augmentations(mask_dropout=True) -> List[A.DualTransform]:
+    return [
+        A.RandomRotate90(p=1),
+        A.Transpose(p=0.5),
+        A.RandomBrightnessContrast(brightness_by_max=True),
+        A.CLAHE(),
+        A.FancyPCA(),
+        A.HueSaturationValue(),
+        A.RGBShift(),
+        A.RandomGamma(),
+    ]
+
+
 def get_augmentations(augmentation: str, for_3ch_img=True) -> List[A.DualTransform]:
     if augmentation == "hard":
         aug_transform = hard_augmentations(for_3ch_img)
@@ -145,6 +158,8 @@ def get_augmentations(augmentation: str, for_3ch_img=True) -> List[A.DualTransfo
         aug_transform = light_augmentations()
     elif augmentation == "safe":
         aug_transform = safe_augmentations()
+    elif augmentation == "one":
+        aug_transform = one_augmentations()
     else:
         aug_transform = []
 
