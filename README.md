@@ -1,8 +1,10 @@
 # PyTorch Segmentation models Trainer
- Код для обучения моделей сегментации. Модели сетей взяты из этой библиотеки: https://github.com/qubvel/segmentation_models.pytorch
- Git-оригинал: https://github.com/qprinceqq/segm-models-public
+[Git-оригинал](https://github.com/qprinceqq/segm-models-public)
+Код для обучения моделей сегментации. Модели сетей взяты из этой библиотеки: https://github.com/qubvel/segmentation_models.pytorch
+
  
 # Как запустить модель
+```
  Запустить обучение сети можно одной строкой:
  bash train_my.sh
  (В файле train_my.sh необходимо корректно указать путь до набора данных
@@ -21,9 +23,10 @@
 
                 (другие параметры можно найти в файле train.py)
 
+```
 # Проделанная работа
- Над проектом работали: Дубровин Руслан РИ-220942
-                        Хренов   Егор   РИ-220910
-                        
- Excel-таблица проделанной работы: https://docs.google.com/spreadsheets/d/1qvftg1H0orNYrSY0jhkmTuXq1Tz0SugP8gKB6UadevE/edit?hl=ru#gid=0
+Над проектом работали: Дубровин Руслан РИ-220942
  
+                       Хренов   Егор   РИ-220910
+       
+[Excel-таблица проделанной работы](https://docs.google.com/spreadsheets/d/1qvftg1H0orNYrSY0jhkmTuXq1Tz0SugP8gKB6UadevE/edit?hl=ru#gid=0)
